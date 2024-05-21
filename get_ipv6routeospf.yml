@@ -1,13 +1,13 @@
 ---
-- name: Get Interfaces
+- name: Get IPv6 OSPF route informations
   hosts: routersv4
   gather_facts: false
   connection: local
 
   tasks:
-  - name: Run show ipv6 interfaces brief cli_command on IOS
+  - name: Run show ipv6 route ospf cli_command on IOS
     ansible.netcommon.cli_command:
-      command: show ipv6 int br
+      command: show ipv6 route ospf
     register: result
 
   - name: Display result to terminal window
