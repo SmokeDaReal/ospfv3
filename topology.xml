@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routers>
+        <router hostname="R1">
+                <interface id="f2/0" neighbor="R6">
+                        <ipv4>192.168.0.1/24</ipv4>
+                        <ipv6>2002:db8:0:1::1/64</ipv6>
+                </interface>
+                <interface id="f0/0" neighbor="R2">
+                        <ipv4>10.1.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:1::1/64</ipv6>
+                </interface>
+                <interface id="f0/1" neighbor="R3">
+                        <ipv4>10.2.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:2::1/64</ipv6>
+                </interface>
+                <interface id="s1/0" neighbor="R4">
+                        <ipv4>10.4.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:4::1/64</ipv6>
+                </interface>
+                <interface id="s1/1" neighbor="R5">
+                        <ipv4>10.5.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:5::1/64</ipv6>
+                </interface>
+        </router>
+        <router hostname="R2">
+                <interface id="f0/0" neighbor="R1">
+                        <ipv4>10.1.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:1::2</ipv6>
+                </interface>
+                <interface id="f0/1" neighbor="R3">
+                        <ipv4>10.3.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:3::1/64</ipv6>
+                </interface>
+        </router>
+        <router hostname="R3">
+                <interface id="f0/0" neighbor="R1">
+                        <ipv4>10.2.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:2::2/64</ipv6>
+                </interface>
+                <interface id="f0/1" neighbor="R2">
+                        <ipv4>10.3.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:3::2/64</ipv6>
+                </interface>
+        </router>
+        <router hostname="R4">
+                <interface id="s1/0" neighbor="R1">
+                        <ipv4>10.4.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:4::2/64</ipv6>
+                </interface>
+                <interface id="f0/0" neighbor="R5">
+                        <ipv4>10.6.1.1/24</ipv4>
+                        <ipv6>2001:db8:0:6::1/64</ipv6>
+                </interface>
+        </router>
+        <router hostname="R5">
+                <interface id="s1/0" neighbor="R1">
+                        <ipv4>10.5.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:5::2/64</ipv6>
+                </interface>
+                <interface id="f0/0" neighbor="R4">
+                        <ipv4>10.6.1.2/24</ipv4>
+                        <ipv6>2001:db8:0:6::2/64</ipv6>
+                </interface>
+        </router>
+</routers>
