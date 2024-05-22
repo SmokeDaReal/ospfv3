@@ -56,6 +56,8 @@ function Get-TrueNeighbor{
 }
 
 function main{
+    $allGood = $true
+
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
@@ -65,11 +67,14 @@ function main{
                 if(Get-TrueNeighbor -routerId $routerHname -interfaceId $_.id){
                     Write-Host "`tThis router is neighbor with: $($expectedNeighborName)" -ForegroundColor Green
                 } else {
+		    $allGood = $false
                     Write-Host "`tThis router is NOT neighbor with: $($expectedNeighborName)" -ForegroundColor Red
                 }
             }
         }
+	Write-Host ""
     }
+    return $allGood
 }
 
-main
+return (main)

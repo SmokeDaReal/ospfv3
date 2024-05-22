@@ -11,7 +11,9 @@ ansible-galaxy collection install ansible.netcommon
 
 #install git
 apt-get install -y git
-git verion
+git version
 git config --global user.name "SmokeDaReal"
 git config --global user.email "szmok.peter1@gmail.com"
 
+#install openssh
+apt-get install -y openssh-server

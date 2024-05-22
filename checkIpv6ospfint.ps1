@@ -45,6 +45,8 @@ function Get-IfStat{
 function main{
     [xml]$xml = Get-Content "./topology.xml"
 
+    $allGood = $true
+
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
@@ -54,13 +56,17 @@ function main{
                 if($res -eq "gutArea") {
                     Write-Host "`tInterface $($_.id) has OSPF configured, with the correct area $($_.area)" -ForegroundColor Green
                 } elseif($res -eq "noIf") {
+		    $allGood = $false
                     Write-Host "`tInterface $($_.id) does not have OSPF configured!" -ForegroundColor Red
                 } else {
+		    $allGood = $false
                     Write-Host "`tInterface $($_.id) has OSPF configured, but with wrong area: $($res)" -ForegroundColor DarkRed
                 }
             }
         }
+	Write-Host ""
     }
+    return $allGood
 }
 
-main
+return (main)

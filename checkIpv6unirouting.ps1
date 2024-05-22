@@ -24,17 +24,21 @@ function Get-UniRouting{
 function main{
     [xml]$xml = Get-Content "./topology.xml"
 
+    $allGood = $true    
+
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
         if(Get-UniRouting -routerId $routerHname){
             Write-Host "`tIPv6 unicast routing is enabled on this device" -ForegroundColor Green
         } else {
+	    $allGood = $false
             Write-Host "`tIPv6 unicast routing is disabled on this device" -ForegroundColor Red
         }
 
         Write-Host ""
     }
+    return $allGood
 }
 
-main
+return (main)

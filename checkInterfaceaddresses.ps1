@@ -42,18 +42,23 @@ function Get-IP{
 }
 
 function main{
-    [xml]$xml = Get-Content topology.xml
+    [xml]$xml = Get-Content "./topology.xml"
+
+    $allGood = $true
 
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
         $_.interface | ForEach-Object{
+            [string]$ip = ($_.ipv6).Split('/')[0]
             $ipArray = Get-IP -routerId $routerHname -interfaceName $_.id
-            if(($ipArray).Contains((($_.ipv6).Split('/')[0])), 'InvariantCultureIgnoreCase'){
+            if(!([string]::IsNullOrEmpty(($ipArray | Where-Object{ $_ -like "*$($ip)*" })))) {
                 Write-Host "`tInterface IP: $($_.ipv6) is correct!" -ForegroundColor Green
-            } else { Write-Host "Interface IP: $($_.ipv6) is NOT correct!" -ForegroundColor Red }
+            } else { $allGood = $false;Write-Host "`tInterface IP: $($_.ipv6) is NOT correct!" -ForegroundColor Red }
         }
+	Write-Host ""
     }
+    return $allGood
 }
 
-main
+return (main)

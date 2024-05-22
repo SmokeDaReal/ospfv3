@@ -27,16 +27,20 @@ function Get-RoutingProcess{
 function main{
     [xml]$xml = Get-Content "./topology.xml"
 
+    $allGood = $true
+
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
         if(Get-RoutingProcess -routerName $routerHname -routerId ($_.id)){
             Write-Host "`tOSPFv3 is enabled with Id: $($_.id)" -ForegroundColor Green
         } else {
+	    $allGood = $false
             Write-Host "`tOSPFv3 is NOT enabled with Id: $($_.id)" -ForegroundColor Red
         }
 	Write-Host ""
     }
+    return $allGood
 }
 
-main
+return (main)
