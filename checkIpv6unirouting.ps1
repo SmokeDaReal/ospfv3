@@ -1,7 +1,5 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook get_ipv6unirouting.yml
-
 function Get-UniRouting{
     param(
         [Parameter(Mandatory = $true)][string]$routerId
@@ -21,10 +19,35 @@ function Get-UniRouting{
     return $isEnabled
 }
 
-function main{
-    [xml]$xml = Get-Content "./topology.xml"
 
-    $allGood = $true    
+function Get-IfChanged{
+    param(
+        [Parameter(Mandatory = $true)][string]$routerId
+    )
+
+    if([string]::IsNullOrEmpty(($out2 | Where-Object {$_ -like "*changed:*$($routerId)*"}))) { return $false }
+    else { return $true }
+}
+
+function Fix-Unirouting{
+    param(
+        [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$badRouters
+    )
+
+    $out2 = ansible-playbook fixes/set_ipv6unirouting.yml
+
+    foreach($router in $badRouters)
+    {
+        Write-Host ""
+        if(Get-IfChanged -routerId $router) { Write-Host "`tSuccessfully enabled ipv6 unicast-routing on $($router)" -ForegroundColor Cyan }
+        else {  Write-Host "`tUnable to enable ipv6 unicast-routing on $($router)" -ForegroundColor DarkRed }
+    }
+}
+
+function main{
+    $out = ansible-playbook get_ipv6unirouting.yml
+    [xml]$xml = Get-Content "./topology.xml"
+    $badRouters = New-Object Collections.Generic.List[string]
 
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
@@ -32,13 +55,22 @@ function main{
         if(Get-UniRouting -routerId $routerHname){
             Write-Host "`tIPv6 unicast routing is enabled on this device" -ForegroundColor Green
         } else {
-	    $allGood = $false
+            $badRouters.Add($routerHname)
             Write-Host "`tIPv6 unicast routing is disabled on this device" -ForegroundColor Red
         }
 
         Write-Host ""
     }
-    return $allGood
+
+    if($badRouters.Count -eq 0){ return $true }
+    else{
+        $prompt = Read-Host "If you want to enable ipv6 unicast-routing on the misconfigured routers, press Y"
+        if($prompt -eq "Y") {
+            Fix-Unirouting -badRouters $badRouters
+            main
+        }
+        else{ return $false }
+    }
 }
 
-return (main)
+main

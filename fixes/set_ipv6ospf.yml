@@ -1,0 +1,17 @@
+---
+- name: Set OSPFv3 process and router ID on all devices
+  hosts: routersv4
+  gather_facts: false
+  connection: local
+
+  tasks:
+  - name: Run router ospfv3 1 cli_command on IOS
+    ios_config:
+      lines:
+        - "router ospfv3 1"
+
+  - name: Run router-id <router-id> cli_command on IOS
+    ios_config:
+      lines:
+        - "router-id {{ router_id }}"
+      parents: router ospfv3 1
