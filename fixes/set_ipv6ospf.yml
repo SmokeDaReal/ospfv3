@@ -5,13 +5,13 @@
   connection: local
 
   tasks:
-  - name: Run router ospfv3 1 cli_command on IOS
+  - name: Run ipv6 router ospf 1 cli_command on IOS
     ios_config:
       lines:
-        - "router ospfv3 1"
+        - "ipv6 router ospf 1"
 
   - name: Run router-id <router-id> cli_command on IOS
     ios_config:
       lines:
         - "router-id {{ router_id }}"
-      parents: router ospfv3 1
+      parents: ipv6 router ospf 1
