@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook get_ipv6ospfneigh.yml
+$out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6ospfneigh.yml")
 [xml]$xml = Get-Content "./topology.xml"
 
 function Get-NeighborRouterId{

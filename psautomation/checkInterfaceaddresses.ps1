@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook get_interfaces.yml
+$out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_interfaces.yml")
 
 function Resolve-Name{
     param(
@@ -28,7 +28,6 @@ function Get-IP{
     [int]$x = $startIndex
     while($out[$x] -ne "}"){
         if($out[$x] -like "*" + (Resolve-Name -interfaceName $interfaceName) + "*"){
-            #Write-Host $out[$x]
             [int]$j = $x + 1
             while(($out[$j] -match '\s*"\s*(.*?)\s*"\s*') -and !($out[$j].Contains("["))){
                 $ips += $matches[1]
@@ -54,7 +53,7 @@ function main{
             $ipArray = Get-IP -routerId $routerHname -interfaceName $_.id
             if(!([string]::IsNullOrEmpty(($ipArray | Where-Object{ $_ -like "*$($ip)*" })))) {
                 Write-Host "`tInterface IP: $($_.ipv6) is correct!" -ForegroundColor Green
-            } else { $allGood = $false;Write-Host "`tInterface IP: $($_.ipv6) is NOT correct!" -ForegroundColor Red }
+            } else { Write-Host "`tInterface IP: $($_.ipv6) is NOT correct!" -ForegroundColor Red }
         }
 	Write-Host ""
     }

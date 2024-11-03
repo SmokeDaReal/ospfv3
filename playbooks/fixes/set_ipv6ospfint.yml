@@ -1,0 +1,14 @@
+---
+- name: Join interfaces to OSPFv3 process 1
+  hosts: routersv4
+  gather_facts: false
+  connection: local
+
+  tasks:
+  - name: Run ipv6 ospf 1 area <area> cli_command in interface mode on IOS
+    ios_config:
+      lines:
+        - ipv6 ospf 1 area {{ item.ospfv3.area }}
+      parents: interface {{ item.ios_if }}
+    when: item.ospfv3 is defined
+    loop: "{{ interfaces }}"

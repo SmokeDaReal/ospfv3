@@ -34,18 +34,19 @@ function Fix-Unirouting{
         [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$badRouters
     )
 
-    $out2 = ansible-playbook fixes/set_ipv6unirouting.yml
+    $out2 = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName set_ipv6unirouting.yml")
 
     foreach($router in $badRouters)
     {
         Write-Host ""
-        if(Get-IfChanged -routerId $router) { Write-Host "`tSuccessfully enabled ipv6 unicast-routing on $($router)" -ForegroundColor Cyan }
-        else {  Write-Host "`tUnable to enable ipv6 unicast-routing on $($router)" -ForegroundColor DarkRed }
+        if(Get-IfChanged -routerId $router) { Write-Host "`t`tSuccessfully enabled ipv6 unicast-routing on $($router)" -ForegroundColor Cyan }
+        else {  Write-Host "`t`tUnable to enable ipv6 unicast-routing on $($router)" -ForegroundColor DarkRed }
+	Write-Host ""
     }
 }
 
 function main{
-    $out = ansible-playbook get_ipv6unirouting.yml
+    $out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6unirouting.yml")
     [xml]$xml = Get-Content "./topology.xml"
     $badRouters = New-Object Collections.Generic.List[string]
 

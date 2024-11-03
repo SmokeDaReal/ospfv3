@@ -1,0 +1,14 @@
+router_id: 3.3.3.3
+interfaces:
+  - ios_if: f0/0
+    ipv4: 10.2.1.2/24
+    ipv6: 2001:db8:0:2::2/64
+    neighbor: R1
+    ospfv3:
+      area: 1
+  - ios_if: f0/1
+    ipv4: 10.3.1.2/24
+    ipv6: 2001:db8:0:3::2/64
+    neighbor: R2
+    ospfv3:
+      area: 1

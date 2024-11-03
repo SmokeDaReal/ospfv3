@@ -1,5 +1,8 @@
 #!/usr/bin/pwsh -Command
 
+Write-Host "Updating the host variable files for Ansible based on the latest topology.xml"
+Invoke-Expression "./generateHostVarsfromXML.ps1"
+
 Write-Host "----------Checking IPv6 unicast routing----------`n"
 if(!(Invoke-Expression "./checkIpv6unirouting.ps1")) { exit }
 

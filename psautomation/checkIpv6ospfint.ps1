@@ -1,7 +1,5 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook get_ipv6ospfint.yml
-
 function Resolve-Name{
     param(
         [Parameter(Mandatory = $true)][string]$interfaceName
@@ -42,10 +40,38 @@ function Get-IfStat{
     return [string]"noIf"
 }
 
-function main{
-    [xml]$xml = Get-Content "./topology.xml"
+function Get-IfChanged{
+    param(
+        [Parameter(Mandatory = $true)][string]$routerId,
+        [Parameter(Mandatory = $true)][string]$interfaceId
+    )
 
-    $allGood = $true
+    if([string]::IsNullOrEmpty(($out2 | Where-Object {$_ -like "*changed:*$($routerId)*$($interfaceId)*"}))) { return $false }
+    else { return $true }
+}
+
+function Fix-OspfProcess{
+    param(
+        [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$badRouters
+    )
+
+    $out2 = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName set_ipv6ospfint.yml")
+
+    foreach($item in $badRouters)
+    {
+        Write-Host ""
+        $router = $item.Split('-')[0]
+        $int = $item.Split('-')[1]
+        if(Get-IfChanged -routerId $router -interfaceId $int) { Write-Host "`t`tSuccessfully set OSPFv3 area on $($router), interface: $($int)" -ForegroundColor Cyan }
+        else {  Write-Host "`t`tUnable to set OSPFv3 area on $($router), interface: $($int)" -ForegroundColor DarkRed }
+	Write-Host ""
+    }
+}
+
+function main{
+    $out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6ospfint.yml")
+    [xml]$xml = Get-Content "./topology.xml"
+    $badRouters = New-Object Collections.Generic.List[string]
 
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
@@ -56,17 +82,27 @@ function main{
                 if($res -eq "gutArea") {
                     Write-Host "`tInterface $($_.id) has OSPF configured, with the correct area $($_.area)" -ForegroundColor Green
                 } elseif($res -eq "noIf") {
-		    $allGood = $false
+                    $badRouters.Add("$($routerHname)-$($_.id)")
                     Write-Host "`tInterface $($_.id) does not have OSPF configured!" -ForegroundColor Red
                 } else {
-		    $allGood = $false
+                    $badRouters.Add("$($routerHname)-$($_.id)")
                     Write-Host "`tInterface $($_.id) has OSPF configured, but with wrong area: $($res)" -ForegroundColor DarkRed
                 }
             }
         }
-	Write-Host ""
+
+        Write-Host ""
     }
-    return $allGood
+
+    if($badRouters.Count -eq 0){ return $true }
+    else{
+        $prompt = Read-Host "If you want to set the predetermined area numbers for OSPFv3 on the misconfigured routers and interfaces, press Y"
+        if($prompt -eq "Y") {
+            Fix-OspfProcess -badRouters $badRouters
+            main
+        }
+        else{ return $false }
+    }
 }
 
-return (main)
+main
