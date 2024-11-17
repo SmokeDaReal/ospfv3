@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh -Command
 
-[xml]$xml = Get-Content "./topology.xml"
+[xml]$xml = Get-Content (Invoke-Expression ".\get_latestTopology.ps1")
 
 Remove-Item ".\host_vars" -Force -Recurse -ErrorAction SilentlyContinue
 New-Item -Path ".\" -Name "host_vars" -ItemType Directory

@@ -68,7 +68,7 @@ function Fix-Ipv6Address{
 
 function main{
     $out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_interfaces.yml")
-    [xml]$xml = Get-Content "./topology.xml"
+    [xml]$xml = Get-Content (Invoke-Expression ".\get_latestTopology.ps1")
     $badRouters = New-Object Collections.Generic.List[string]
 
     $xml.routers.router | ForEach-Object {
