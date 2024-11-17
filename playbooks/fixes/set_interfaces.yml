@@ -1,0 +1,14 @@
+---
+- name: Set IPv6 addresses for interfaces
+  hosts: routersv4
+  gather_facts: false
+  connection: local
+
+  tasks:
+  - name: Run ipv6 address in interface mode on IOS
+    ios_config:
+      lines:
+        - ipv6 address {{ item.ipv6 }}
+      parents: interface {{ item.ios_if }}
+    when: item.ipv6 is defined
+    loop: "{{ interfaces }}"

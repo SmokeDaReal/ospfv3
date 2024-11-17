@@ -41,8 +41,8 @@ function Fix-OspfProcess{
     foreach($router in $badRouters)
     {
         Write-Host ""
-        if(Get-IfChanged -routerId $router) { Write-Host "`t`tSuccessfully enabled the OSPFv3 process on $($router)" -ForegroundColor Cyan }
-        else {  Write-Host "`t`tUnable to enable the OSPFv3 process on $($router)" -ForegroundColor DarkRed }
+        if(Get-IfChanged -routerId $router) { Write-Host "`t`tSuccessfully enabled the OSPFv3 process 1 on $($router)" -ForegroundColor Cyan }
+        else {  Write-Host "`t`tUnable to enable the OSPFv3 process 1 on $($router)" -ForegroundColor DarkRed }
 	Write-Host ""
     }
 }
@@ -56,10 +56,10 @@ function main{
         $routerHname = $_.hostname
         Write-Host "Router hostname: $($routerHname)"
         if(Get-RoutingProcess -routerName $routerHname -routerId ($_.id)){
-            Write-Host "`tOSPFv3 is enabled with Id: $($_.id)" -ForegroundColor Green
+            Write-Host "`tOSPFv3 process is running with Id: $($_.id)" -ForegroundColor Green
         } else {
             $badRouters.Add($routerHname)
-            Write-Host "`tOSPFv3 is NOT enabled with Id: $($_.id)" -ForegroundColor Red
+            Write-Host "`tOSPFv3 process is NOT running with Id: $($_.id)" -ForegroundColor Red
         }
 
         Write-Host ""
@@ -67,7 +67,7 @@ function main{
 
     if($badRouters.Count -eq 0){ return $true }
     else{
-        $prompt = Read-Host "If you want to enable the OSPFv3 process with router-id on the misconfigured routers, press Y"
+        $prompt = Read-Host "If you want to enable the OSPFv3 process 1 with router-id on the misconfigured routers, press Y"
         if($prompt -eq "Y") {
             Fix-OspfProcess -badRouters $badRouters
             main

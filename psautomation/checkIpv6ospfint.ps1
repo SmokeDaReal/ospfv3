@@ -50,7 +50,7 @@ function Get-IfChanged{
     else { return $true }
 }
 
-function Fix-OspfProcess{
+function Fix-OspfInterface{
     param(
         [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$badRouters
     )
@@ -98,7 +98,7 @@ function main{
     else{
         $prompt = Read-Host "If you want to set the predetermined area numbers for OSPFv3 on the misconfigured routers and interfaces, press Y"
         if($prompt -eq "Y") {
-            Fix-OspfProcess -badRouters $badRouters
+            Fix-OspfInterface -badRouters $badRouters
             main
         }
         else{ return $false }

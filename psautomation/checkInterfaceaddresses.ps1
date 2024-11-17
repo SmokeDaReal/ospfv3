@@ -1,7 +1,5 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_interfaces.yml")
-
 function Resolve-Name{
     param(
         [Parameter(Mandatory = $true)][string]$interfaceName
@@ -40,10 +38,38 @@ function Get-IP{
     return $ips
 }
 
-function main{
-    [xml]$xml = Get-Content "./topology.xml"
+function Get-IfChanged{
+    param(
+        [Parameter(Mandatory = $true)][string]$routerId,
+        [Parameter(Mandatory = $true)][string]$interfaceId
+    )
 
-    $allGood = $true
+    if([string]::IsNullOrEmpty(($out2 | Where-Object {$_ -like "*changed:*$($routerId)*$($interfaceId)*"}))) { return $false }
+    else { return $true }
+}
+
+function Fix-Ipv6Address{
+    param(
+        [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$badRouters
+    )
+
+    $out2 = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName set_interfaces.yml")
+
+    foreach($item in $badRouters)
+    {
+        Write-Host ""
+        $router = $item.Split('-')[0]
+        $int = $item.Split('-')[1]
+        if(Get-IfChanged -routerId $router -interfaceId $int) { Write-Host "`t`tSuccessfully set IPv6 address on $($router), interface: $($int)" -ForegroundColor Cyan }
+        else {  Write-Host "`t`tUnable to set IPv6 address on $($router), interface: $($int)" -ForegroundColor DarkRed }
+	Write-Host ""
+    }
+}
+
+function main{
+    $out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_interfaces.yml")
+    [xml]$xml = Get-Content "./topology.xml"
+    $badRouters = New-Object Collections.Generic.List[string]
 
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
@@ -52,12 +78,25 @@ function main{
             [string]$ip = ($_.ipv6).Split('/')[0]
             $ipArray = Get-IP -routerId $routerHname -interfaceName $_.id
             if(!([string]::IsNullOrEmpty(($ipArray | Where-Object{ $_ -like "*$($ip)*" })))) {
-                Write-Host "`tInterface IP: $($_.ipv6) is correct!" -ForegroundColor Green
-            } else { Write-Host "`tInterface IP: $($_.ipv6) is NOT correct!" -ForegroundColor Red }
+                Write-Host "`tInterface IP on $($_.id): $($_.ipv6) is correct!" -ForegroundColor Green
+            } else {
+                Write-Host "`tInterface IP on $($_.id): $($_.ipv6) is NOT correct!" -ForegroundColor Red
+                $badRouters.Add("$($routerHname)-$($_.id)")
+            }
         }
-	Write-Host ""
+
+	    Write-Host ""
     }
-    return $allGood
+
+    if($badRouters.Count -eq 0){ return $true }
+    else{
+        $prompt = Read-Host "If you want to modify the IPv6 addresses on the misconfigured routers and interfaces, press Y"
+        if($prompt -eq "Y") {
+            Fix-Ipv6Address -badRouters $badRouters
+            main
+        }
+        else{ return $false }
+    }
 }
 
-return (main)
+main
