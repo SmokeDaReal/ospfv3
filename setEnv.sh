@@ -17,3 +17,6 @@ git config --global user.email "szmok.peter1@gmail.com"
 
 #install openssh
 apt-get install -y openssh-server
+
+#run vscode remote tunnel client
+./code tunnel

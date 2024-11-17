@@ -1,0 +1,15 @@
+---
+- name: Get detailed IPv6 OSPF informations of specific Interface
+  hosts: "{{ router }}"
+  gather_facts: false
+  connection: local
+
+  tasks:
+  - name: Run show ipv6 ospf interface {{ interfaceId  }} cli_command on IOS
+    ansible.netcommon.cli_command:
+      command: show ipv6 ospf interface {{ interfaceId  }}
+    register: result
+
+  - name: Display result to terminal window
+    debug:
+      var: result.stdout_lines

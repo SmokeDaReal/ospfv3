@@ -1,8 +1,5 @@
 #!/usr/bin/pwsh -Command
 
-$out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6ospfneigh.yml")
-[xml]$xml = Get-Content (Invoke-Expression ".\get_latestTopology.ps1")
-
 function Get-NeighborRouterId{
     param(
         [Parameter(Mandatory = $true)][string]$routerName,
@@ -56,7 +53,9 @@ function Get-TrueNeighbor{
 }
 
 function main{
-    $allGood = $true
+    $out = ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6ospfneigh.yml")
+    [xml]$xml = Get-Content (Invoke-Expression ".\get_latestTopology.ps1")
+    $badRouters = New-Object Collections.Generic.List[string]
 
     $xml.routers.router | ForEach-Object {
         $routerHname = $_.hostname
@@ -67,14 +66,30 @@ function main{
                 if(Get-TrueNeighbor -routerId $routerHname -interfaceId $_.id){
                     Write-Host "`tThis router is neighbor with: $($expectedNeighborName)" -ForegroundColor Green
                 } else {
-		    $allGood = $false
                     Write-Host "`tThis router is NOT neighbor with: $($expectedNeighborName)" -ForegroundColor Red
+                    $badRouters.Add("$($routerHname)-$($_.id)")
                 }
             }
         }
-	Write-Host ""
+
+	    Write-Host ""
     }
-    return $allGood
+
+    if($badRouters.Count -eq 0){ return $true }
+    else{
+        $prompt = Read-Host "If you want to query the OSPF information on the misconfigured routers and interfaces, press Y"
+        if($prompt -eq "Y") {
+            Write-Host (Get-Content ".\tippsforospfinterfaces" -Raw) -ForegroundColor DarkMagenta
+            pause
+            foreach($router in $badRouters){
+                $routerName = "$($router.Split('-')[0])v4"
+                $ifId = $router.Split('-')[1]
+                ansible-playbook (Invoke-Expression ".\get_playbookpath.ps1 -PlaybookName get_ipv6ospfint_detailed.yml") --extra-vars "router=$($routerName) interfaceId=$($ifId)"
+                Write-Host ""
+            }
+        }
+        else{ return $false }
+    }
 }
 
-return (main)
+main
