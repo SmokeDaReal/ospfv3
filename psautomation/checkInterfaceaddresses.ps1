@@ -61,7 +61,7 @@ function Fix-Ipv6Address{
         $router = $item.Split('-')[0]
         $int = $item.Split('-')[1]
         if(Get-IfChanged -routerId $router -interfaceId $int) { Write-Host "`t`tSuccessfully set IPv6 address on $($router), interface: $($int)" -ForegroundColor Cyan }
-        else {  Write-Host "`t`tUnable to set IPv6 address on $($router), interface: $($int)" -ForegroundColor DarkRed }
+        else {  Write-Host "`t`tUnable to set IPv6 address on $($router), interface: $($int)" -ForegroundColor DarkYellow }
 	Write-Host ""
     }
 }
@@ -80,7 +80,7 @@ function main{
             if(!([string]::IsNullOrEmpty(($ipArray | Where-Object{ $_ -like "*$($ip)*" })))) {
                 Write-Host "`tInterface IP on $($_.id): $($_.ipv6) is correct!" -ForegroundColor Green
             } else {
-                Write-Host "`tInterface IP on $($_.id): $($_.ipv6) is NOT correct!" -ForegroundColor Red
+                Write-Host "`tInterface IP on $($_.id): $($_.ipv6) is NOT correct!" -ForegroundColor Yellow
                 $badRouters.Add("$($routerHname)-$($_.id)")
             }
         }
@@ -88,15 +88,14 @@ function main{
 	    Write-Host ""
     }
 
-    if($badRouters.Count -eq 0){ return $true }
-    else{
+    if($badRouters.Count -ne 0){
         $prompt = Read-Host "If you want to modify the IPv6 addresses on the misconfigured routers and interfaces, press Y"
         if($prompt -eq "Y") {
             Fix-Ipv6Address -badRouters $badRouters
             main
         }
-        else{ return $false }
     }
+    return $true
 }
 
 main

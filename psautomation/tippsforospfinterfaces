@@ -1,23 +1,25 @@
 
-############################################################################################
-#                                                                                          #
-# If at this point the expected OSPF neighbor states are still not formed                  #
-# there are only a couple of other configuration possibilites that could cause the problem #
-#                                                                                          #
-# These possiblities include:                                                              #
-#   - Hello/Dead timer intervals not matching on the neighboring interfaces                #
-#   - One/Both of the interfaces are configured to be excluded from OSPF communication     #
-#   - A security scheme, such as an extended ACL is blocking OSPF communication            #
-#   - Mismatched subnet masks on the neighboring interfaces                                #
-#   - Physical/link-level errors are occuring                                              #
-#                                                                                          #
-# Configurations that were checked in this Troubleshooting process                         #
-# but could be beneficial to investigate them further:                                     #
-#   - Neighbor is inactive/down                                                            #
-#   - Neighbor does not have OSPFv3 enabled                                                #
-#   - Neighbor does not have routerId configured or has incorrect routerId                 #
-#     (should not be an issue as long as the present routerIds are unique)                 #
-#   - OSPF areas are not/misconfigured on the neighboring interfaces                       #
-#     (if they match, the adjacency should still form between the routers)                 #
-#                                                                                          #
-############################################################################################
+##############################################################################################
+#                                                                                            #
+# If at this point the expected OSPF neighbor states are still not formed                    #
+# there are only a couple of other configuration possibilites that could cause the problem   #
+#                                                                                            #
+# These possiblities include:                                                                #
+#   - Hello/Dead timer intervals not matching on the neighboring interfaces                  #
+#   - Network types should match between the neighboring interfaces                          #
+#   - The authentication type used by the OSPF process has to be the same  between neighbors #
+#   - One/Both of the interfaces are configured to be excluded from OSPF communication       #
+#   - A security scheme, such as an extended ACL is blocking OSPF communication              #
+#   - Mismatched subnet masks on the neighboring interfaces                                  #
+#   - Physical/link-level errors are occuring                                                #
+#                                                                                            #
+# Configurations that were checked in this Troubleshooting process                           #
+# but could be beneficial to investigate them further:                                       #
+#   - Neighbor is inactive/down                                                              #
+#   - Neighbor does not have OSPFv3 enabled                                                  #
+#   - Neighbor does not have routerId configured or has incorrect routerId                   #
+#     (should not be an issue as long as the present routerIds are unique)                   #
+#   - OSPF areas are not/misconfigured on the neighboring interfaces                         #
+#     (if they match, the adjacency should still form between the routers)                   #
+#                                                                                            #
+##############################################################################################
