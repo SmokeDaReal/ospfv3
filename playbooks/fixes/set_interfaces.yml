@@ -8,6 +8,7 @@
   - name: Run ipv6 address in interface mode on IOS
     ios_config:
       lines:
+        - no ipv6 address
         - ipv6 address {{ item.ipv6 }}
       parents: interface {{ item.ios_if }}
     when: item.ipv6 is defined
