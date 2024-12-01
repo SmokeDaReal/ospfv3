@@ -10,7 +10,7 @@
 #   - The authentication type used by the OSPF process has to be the same  between neighbors #
 #   - One/Both of the interfaces are configured to be excluded from OSPF communication       #
 #   - A security scheme, such as an extended ACL is blocking OSPF communication              #
-#   - Mismatched subnet masks on the neighboring interfaces                                  #
+#   - Mismatched subnet masks on the neighboring interfaces (Only in OSPFv2)                 #
 #   - Physical/link-level errors are occuring                                                #
 #                                                                                            #
 # Configurations that were checked in this Troubleshooting process                           #
